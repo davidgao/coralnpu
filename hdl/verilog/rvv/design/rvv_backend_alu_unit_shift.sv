@@ -102,46 +102,48 @@ module rvv_backend_alu_unit_shift
     // initial the data
     result_valid   = 'b0;
 
-    case(uop_funct3) 
-      OPIVV: begin
-        case(uop_funct6.ari_funct6)
-          VSLL,
-          VSRL,
-          VSRA,
-          VSSRL,
-          VSSRA: begin
-            result_valid = alu_uop_valid&vs2_data_valid&vs1_data_valid;
-          end
+    if (alu_uop_valid) begin
+      case(uop_funct3)
+        OPIVV: begin
+          case(uop_funct6.ari_funct6)
+            VSLL,
+            VSRL,
+            VSRA,
+            VSSRL,
+            VSSRA: begin
+              result_valid = vs2_data_valid&vs1_data_valid;
+            end
 
-          VNSRL,
-          VNSRA,
-          VNCLIPU,
-          VNCLIP: begin
-            result_valid = alu_uop_valid&vs2_data_valid&vs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
-          end
-        endcase
-      end
+            VNSRL,
+            VNSRA,
+            VNCLIPU,
+            VNCLIP: begin
+              result_valid = vs2_data_valid&vs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
+            end
+          endcase
+        end
 
-      OPIVX,
-      OPIVI: begin
-        case(uop_funct6.ari_funct6)
-          VSLL,
-          VSRL,
-          VSRA,
-          VSSRL,
-          VSSRA: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid;
-          end
+        OPIVX,
+        OPIVI: begin
+          case(uop_funct6.ari_funct6)
+            VSLL,
+            VSRL,
+            VSRA,
+            VSSRL,
+            VSSRA: begin
+              result_valid = vs2_data_valid&rs1_data_valid;
+            end
 
-          VNSRL,
-          VNSRA,
-          VNCLIPU,
-          VNCLIP: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
-          end
-        endcase
-      end
-    endcase
+            VNSRL,
+            VNSRA,
+            VNCLIPU,
+            VNCLIP: begin
+              result_valid = vs2_data_valid&rs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
+            end
+          endcase
+        end
+      endcase
+    end
   end
 
   // prepare source data

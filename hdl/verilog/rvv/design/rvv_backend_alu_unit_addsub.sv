@@ -113,122 +113,124 @@ module rvv_backend_alu_unit_addsub
     // initial the data
     result_valid = 'b0;
 
-    case(uop_funct3) 
-      OPIVV: begin
-        case(uop_funct6.ari_funct6)
-          VADD,
-          VSUB,
-          VSADD,
-          VSSUB,
-          VSADDU,
-          VSSUBU: begin
-            result_valid = alu_uop_valid&vs2_data_valid&vs1_data_valid;
-          end
+    if (alu_uop_valid) begin
+      case(uop_funct3)
+        OPIVV: begin
+          case(uop_funct6.ari_funct6)
+            VADD,
+            VSUB,
+            VSADD,
+            VSSUB,
+            VSADDU,
+            VSSUBU: begin
+              result_valid = vs2_data_valid&vs1_data_valid;
+            end
 
-          VADC,
-          VSBC: begin
-            result_valid = alu_uop_valid&vs2_data_valid&vs1_data_valid&(vm==1'b0)&v0_data_valid;
-          end
+            VADC,
+            VSBC: begin
+              result_valid = vs2_data_valid&vs1_data_valid&(vm==1'b0)&v0_data_valid;
+            end
 
-          VMINU,
-          VMIN,
-          VMAXU,
-          VMAX: begin
-            result_valid = alu_uop_valid&vs1_data_valid&vs2_data_valid;
-          end
-        endcase
-      end
+            VMINU,
+            VMIN,
+            VMAXU,
+            VMAX: begin
+              result_valid = vs1_data_valid&vs2_data_valid;
+            end
+          endcase
+        end
 
-      OPIVX: begin
-        case(uop_funct6.ari_funct6)
-          VADD,
-          VSUB,
-          VRSUB,
-          VSADD,
-          VSSUB,
-          VSADDU,
-          VSSUBU: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid;
-          end
+        OPIVX: begin
+          case(uop_funct6.ari_funct6)
+            VADD,
+            VSUB,
+            VRSUB,
+            VSADD,
+            VSSUB,
+            VSADDU,
+            VSSUBU: begin
+              result_valid = vs2_data_valid&rs1_data_valid;
+            end
 
-          VADC,
-          VSBC: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid&(vm==1'b0)&v0_data_valid;
-          end
+            VADC,
+            VSBC: begin
+              result_valid = vs2_data_valid&rs1_data_valid&(vm==1'b0)&v0_data_valid;
+            end
 
-          VMINU,
-          VMIN,
-          VMAXU,
-          VMAX: begin
-            result_valid = alu_uop_valid&rs1_data_valid&vs2_data_valid;
-          end
-        endcase
-      end
-      OPIVI: begin
-        case(uop_funct6.ari_funct6)
-          VADD,
-          VRSUB,
-          VSADD,
-          VSADDU: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid;
-          end
+            VMINU,
+            VMIN,
+            VMAXU,
+            VMAX: begin
+              result_valid = rs1_data_valid&vs2_data_valid;
+            end
+          endcase
+        end
+        OPIVI: begin
+          case(uop_funct6.ari_funct6)
+            VADD,
+            VRSUB,
+            VSADD,
+            VSADDU: begin
+              result_valid = vs2_data_valid&rs1_data_valid;
+            end
 
-          VADC: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid&(vm==1'b0)&v0_data_valid;
-          end
-        endcase
-      end
+            VADC: begin
+              result_valid = vs2_data_valid&rs1_data_valid&(vm==1'b0)&v0_data_valid;
+            end
+          endcase
+        end
 
-      OPMVV: begin
-        case(uop_funct6.ari_funct6)
-          VWADDU,
-          VWADD,
-          VWSUBU,
-          VWSUB: begin
-            result_valid = alu_uop_valid&vs2_data_valid&vs1_data_valid&((vs2_eew==EEW8)|(vs2_eew==EEW16));
-          end
+        OPMVV: begin
+          case(uop_funct6.ari_funct6)
+            VWADDU,
+            VWADD,
+            VWSUBU,
+            VWSUB: begin
+              result_valid = vs2_data_valid&vs1_data_valid&((vs2_eew==EEW8)|(vs2_eew==EEW16));
+            end
 
-          VWADDU_W,
-          VWADD_W,
-          VWSUBU_W,
-          VWSUB_W: begin
-            result_valid = alu_uop_valid&vs2_data_valid&vs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
-          end
+            VWADDU_W,
+            VWADD_W,
+            VWSUBU_W,
+            VWSUB_W: begin
+              result_valid = vs2_data_valid&vs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
+            end
 
-          VAADDU,
-          VAADD,
-          VASUBU,
-          VASUB: begin
-            result_valid = alu_uop_valid&vs2_data_valid&vs1_data_valid;
-          end
-        endcase
-      end
-      
-      OPMVX: begin
-        case(uop_funct6.ari_funct6)
-          VWADDU,
-          VWADD,
-          VWSUBU,
-          VWSUB: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid&((vs2_eew==EEW8)|(vs2_eew==EEW16));
-          end
+            VAADDU,
+            VAADD,
+            VASUBU,
+            VASUB: begin
+              result_valid = vs2_data_valid&vs1_data_valid;
+            end
+          endcase
+        end
 
-          VWADDU_W,
-          VWADD_W,
-          VWSUBU_W,
-          VWSUB_W: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
-          end
+        OPMVX: begin
+          case(uop_funct6.ari_funct6)
+            VWADDU,
+            VWADD,
+            VWSUBU,
+            VWSUB: begin
+              result_valid = vs2_data_valid&rs1_data_valid&((vs2_eew==EEW8)|(vs2_eew==EEW16));
+            end
 
-          VAADDU,
-          VAADD,
-          VASUBU,
-          VASUB: begin
-            result_valid = alu_uop_valid&vs2_data_valid&rs1_data_valid;
-          end
-        endcase
-      end
-    endcase
+            VWADDU_W,
+            VWADD_W,
+            VWSUBU_W,
+            VWSUB_W: begin
+              result_valid = vs2_data_valid&rs1_data_valid&((vs2_eew==EEW16)|(vs2_eew==EEW32));
+            end
+
+            VAADDU,
+            VAADD,
+            VASUBU,
+            VASUB: begin
+              result_valid = vs2_data_valid&rs1_data_valid;
+            end
+          endcase
+        end
+      endcase
+    end
   end
  
   // prepare source data

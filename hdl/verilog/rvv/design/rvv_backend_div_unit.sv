@@ -101,28 +101,30 @@ module rvv_backend_div_unit
     // initial the data
     uop_valid = 'b0;
 
-    case(uop_funct3) 
-      OPMVV: begin
-        case(uop_funct6.ari_funct6)
-          VDIVU,
-          VDIV,
-          VREMU,
-          VREM: begin
-            uop_valid = div_uop_valid&vs2_data_valid&vs1_data_valid;
-          end
-        endcase
-      end
-      OPMVX: begin
-        case(uop_funct6.ari_funct6)
-          VDIVU,
-          VDIV,
-          VREMU,
-          VREM: begin
-            uop_valid = div_uop_valid&vs2_data_valid&rs1_data_valid;
-          end
-        endcase
-      end
-    endcase
+    if (div_uop_valid) begin
+      case(uop_funct3)
+        OPMVV: begin
+          case(uop_funct6.ari_funct6)
+            VDIVU,
+            VDIV,
+            VREMU,
+            VREM: begin
+              uop_valid = vs2_data_valid&vs1_data_valid;
+            end
+          endcase
+        end
+        OPMVX: begin
+          case(uop_funct6.ari_funct6)
+            VDIVU,
+            VDIV,
+            VREMU,
+            VREM: begin
+              uop_valid = vs2_data_valid&rs1_data_valid;
+            end
+          endcase
+        end
+      endcase
+    end
   end
  
   // prepare source data
@@ -387,18 +389,19 @@ module rvv_backend_div_unit
   // check whether all the results are gotten
   always_comb begin
     result_all_valid = 'b0;
-    
-    case(vs2_eew)
-      EEW8: begin
-        result_all_valid = ({result_valid8,result_valid16,result_valid32}=='1);
-      end
-      EEW16: begin
-        result_all_valid = ({result_valid16,result_valid32}=='1);
-      end
-      EEW32: begin
-        result_all_valid = (result_valid32=='1);
-      end
-    endcase
+    if (div_uop_valid) begin
+      case(vs2_eew)
+        EEW8: begin
+          result_all_valid = ({result_valid8,result_valid16,result_valid32}=='1);
+        end
+        EEW16: begin
+          result_all_valid = ({result_valid16,result_valid32}=='1);
+        end
+        EEW32: begin
+          result_all_valid = (result_valid32=='1);
+        end
+      endcase
+    end
   end
 
   // assign to result_data

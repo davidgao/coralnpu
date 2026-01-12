@@ -137,6 +137,7 @@ module rvv_backend_pmtrdt_unit
   logic [`PMTRDT_RS_DEPTH-1:0]  rs_entry_valid;
   logic                         pmt_go, pmt_go_q; // start to execute pmt inst when all uop(s) are in RS
   logic [`UOP_INDEX_WIDTH-1:0]  pmt_uop_done_cnt_d, pmt_uop_done_cnt_q;
+  logic                         pmt_uop_done_cnt_c;
   logic [`VLENB-1:0][`XLEN+1:0] offset;
   logic [`VLENB-1:0][`XLEN+1:0] slide_down_offset;
   logic [`VLENB-1:0]            sel_scalar;
@@ -2452,7 +2453,15 @@ module rvv_backend_pmtrdt_unit
 
       // pmt_uop_done_cnt_d/pmt_uop_done_cnt_q
       assign pmt_uop_done_cnt_d = pmt_uop_done_cnt_q + 1'b1;
-      cdffr #(.T(logic[`UOP_INDEX_WIDTH-1:0])) pmt_uop_done_cnt_reg (.q(pmt_uop_done_cnt_q), .d(pmt_uop_done_cnt_d), .c(uop_data[pmt_uop_done_cnt_q].last_uop_valid | trap_flush_rvv), .e(pmt_go), .clk(clk), .rst_n(rst_n));
+      always_comb begin
+        pmt_uop_done_cnt_c = 1'b1;
+
+        if (pmtrdt_uop_valid)
+        begin
+          pmt_uop_done_cnt_c = uop_data[pmt_uop_done_cnt_q].last_uop_valid | trap_flush_rvv;
+        end
+      end
+      cdffr #(.T(logic[`UOP_INDEX_WIDTH-1:0])) pmt_uop_done_cnt_reg (.q(pmt_uop_done_cnt_q), .d(pmt_uop_done_cnt_d), .c(pmt_uop_done_cnt_c), .e(pmt_go), .clk(clk), .rst_n(rst_n));
 
   // Compress instruction
     // compress instruction is a specified instruction in PMT.

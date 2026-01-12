@@ -130,83 +130,85 @@ module rvv_backend_alu_unit_mask
     alu_sub_opcode = OP_NONE;
     result_2cycle = 'b0;
 
-    // prepare source data
-    case(uop_funct3)
-      OPIVV: begin
-        case(uop_funct6.ari_funct6)
-          VAND,
-          VOR,
-          VXOR: begin
-            result_valid = alu_uop_valid&vs1_data_valid&vs2_data_valid;
-            alu_sub_opcode = OP_OTHER;
-          end
-        endcase
-      end
-      OPIVX,
-      OPIVI: begin
-        case(uop_funct6.ari_funct6)
-          VAND,
-          VOR,
-          VXOR: begin
-            result_valid = alu_uop_valid&rs1_data_valid&vs2_data_valid;
-            alu_sub_opcode = OP_OTHER;
-          end
-        endcase
-      end
-      OPMVV: begin
-        case(uop_funct6.ari_funct6)
-          VMANDN,
-          VMAND,
-          VMOR,
-          VMXOR,
-          VMORN,
-          VMNAND,
-          VMNOR,
-          VMXNOR: begin
-            result_valid = alu_uop_valid&vs1_data_valid&vs2_data_valid&vm&vd_data_valid;
-            alu_sub_opcode = OP_OTHER;
-          end
-          VWXUNARY0: begin
-            case(vs1_opcode)
-              VCPOP: begin
-                result_valid = alu_uop_valid&(vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&v0_data_valid));
-                alu_sub_opcode = OP_VCPOP;
-                result_2cycle = 1'b1;
-              end
-              VFIRST: begin
-                result_valid = alu_uop_valid&(vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&v0_data_valid));
-                alu_sub_opcode = OP_OTHER;
-              end
-            endcase
-          end
-          VMUNARY0: begin
-            case(vs1_opcode)
-              VMSBF,
-              VMSOF,
-              VMSIF: begin
-                result_valid = alu_uop_valid&(vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&vd_data_valid&v0_data_valid));
-                alu_sub_opcode = OP_OTHER;
-              end
-              VIOTA: begin
-                result_valid = alu_uop_valid&(vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&v0_data_valid));
-                alu_sub_opcode = OP_VIOTA;
-                // it can get the viota result in one cycle whose element index in vd belongs to 0-31.
-                // Otherwise, it will get the result in the next cycle.
-                case(vd_eew)
-                  EEW8   : result_2cycle = uop_index >= (`UOP_INDEX_WIDTH)'(32/(`VLEN/8));
-                  EEW16  : result_2cycle = uop_index >= (`UOP_INDEX_WIDTH)'(32/(`VLEN/16));
-                  default: result_2cycle = uop_index >= (`UOP_INDEX_WIDTH)'(32/(`VLEN/32));  //EEW32
-                endcase
-              end
-              VID: begin
-                result_valid = alu_uop_valid;
-                alu_sub_opcode = OP_OTHER;
-              end
-            endcase
-          end
-        endcase
-      end
-    endcase
+    if (alu_uop_valid) begin
+      // prepare source data
+      case(uop_funct3)
+        OPIVV: begin
+          case(uop_funct6.ari_funct6)
+            VAND,
+            VOR,
+            VXOR: begin
+              result_valid = vs1_data_valid&vs2_data_valid;
+              alu_sub_opcode = OP_OTHER;
+            end
+          endcase
+        end
+        OPIVX,
+        OPIVI: begin
+          case(uop_funct6.ari_funct6)
+            VAND,
+            VOR,
+            VXOR: begin
+              result_valid = rs1_data_valid&vs2_data_valid;
+              alu_sub_opcode = OP_OTHER;
+            end
+          endcase
+        end
+        OPMVV: begin
+          case(uop_funct6.ari_funct6)
+            VMANDN,
+            VMAND,
+            VMOR,
+            VMXOR,
+            VMORN,
+            VMNAND,
+            VMNOR,
+            VMXNOR: begin
+              result_valid = vs1_data_valid&vs2_data_valid&vm&vd_data_valid;
+              alu_sub_opcode = OP_OTHER;
+            end
+            VWXUNARY0: begin
+              case(vs1_opcode)
+                VCPOP: begin
+                  result_valid = (vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&v0_data_valid));
+                  alu_sub_opcode = OP_VCPOP;
+                  result_2cycle = 1'b1;
+                end
+                VFIRST: begin
+                  result_valid = (vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&v0_data_valid));
+                  alu_sub_opcode = OP_OTHER;
+                end
+              endcase
+            end
+            VMUNARY0: begin
+              case(vs1_opcode)
+                VMSBF,
+                VMSOF,
+                VMSIF: begin
+                  result_valid = (vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&vd_data_valid&v0_data_valid));
+                  alu_sub_opcode = OP_OTHER;
+                end
+                VIOTA: begin
+                  result_valid = (vs1_data_valid==1'b0)&vs2_data_valid&((vm==1'b1)||((vm==1'b0)&v0_data_valid));
+                  alu_sub_opcode = OP_VIOTA;
+                  // it can get the viota result in one cycle whose element index in vd belongs to 0-31.
+                  // Otherwise, it will get the result in the next cycle.
+                  case(vd_eew)
+                    EEW8   : result_2cycle = uop_index >= (`UOP_INDEX_WIDTH)'(32/(`VLEN/8));
+                    EEW16  : result_2cycle = uop_index >= (`UOP_INDEX_WIDTH)'(32/(`VLEN/16));
+                    default: result_2cycle = uop_index >= (`UOP_INDEX_WIDTH)'(32/(`VLEN/32));  //EEW32
+                  endcase
+                end
+                VID: begin
+                  result_valid = 1'b1;
+                  alu_sub_opcode = OP_OTHER;
+                end
+              endcase
+            end
+          endcase
+        end
+      endcase
+    end
   end
 
   // prepare source data

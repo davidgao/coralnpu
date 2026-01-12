@@ -437,13 +437,15 @@ module rvv_backend_div_unit_divider
       end
       // get result to ouput and wait for ready signal
       DIV_PRINT: begin
-        result_valid = 'b1;
-        
-        result_quotient  = q_sgn_q ? ((~quotient_q )+'d1) : quotient_q;
-        result_remainder = r_sgn_q ? ((~remainder_q)+'d1) : remainder_q;
-    
-        count_en = result_ready;
-        count_d  = 'b0;
+        if (div_valid) begin
+          result_valid = 'b1;
+
+          result_quotient  = q_sgn_q ? ((~quotient_q )+'d1) : quotient_q;
+          result_remainder = r_sgn_q ? ((~remainder_q)+'d1) : remainder_q;
+
+          count_en = result_ready;
+          count_d  = 'b0;
+        end
       end
     endcase
   end
