@@ -71,7 +71,7 @@ verilator_cocotb_model(
     name = "rvv_core_mini_axi_model",
     cflags = VERILATOR_BUILD_ARGS,
     hdl_toplevel = "RvvCoreMiniAxi",
-    trace = False,
+    trace = True,
     verilog_source = "//hdl/chisel/src/coralnpu:RvvCoreMiniAxi.sv",
     deps = [
         "//hdl/verilog:sram_backdoor",
@@ -254,13 +254,15 @@ RVV_LOAD_STORE_TESTCASES = [
     "load8_index32",
     ("load8_index32_seg", "large"),
     "load8_seg_unit",
+    "load8_stride0_m1",
+    "load8_stride0strict_m1",
     "load8_stride2_m1",
     "load8_stride2_m1_partial",
     "load8_stride2_mf4",
     "load16_index8",
     "load16_index8_seg",
-    "load16_index16_seg",
-    "load16_index32_seg",
+    ("load16_index16_seg", "large"),
+    ("load16_index32_seg", "large"),
     "load16_seg_unit",
     "load16_stride4_m1",
     "load16_stride4_m1_partial",
@@ -293,6 +295,7 @@ RVV_LOAD_STORE_TESTCASES = [
     "store8_seg_unit",
     "store16_seg_unit",
     "store32_seg_unit",
+    "load_store8_fault",
     "load_store8_test",
 ]
 # END_TESTCASES_FOR_rvv_load_store_test
@@ -646,7 +649,7 @@ cocotb_test_suite(
     testcases_vname = "RVV_LOAD_STORE_TESTCASES",
     tests_kwargs = {
         "hdl_toplevel": "RvvCoreMiniAxi",
-        "waves": False,
+        "waves": True,
         "seed": "42",
         "test_module": ["rvv_load_store_test.py"],
         "deps": [
