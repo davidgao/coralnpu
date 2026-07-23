@@ -71,3 +71,17 @@ async def core_mini_rvv_memset_test(dut):
             result = await fixture.read('out_buf', 512)
             expected_output_buffer[:size_n] = val_u8
             assert (expected_output_buffer == result).all()
+
+
+@cocotb.test()
+async def gemv_exp(dut):
+
+    fixture = await Fixture.Create(dut)
+    r = runfiles.Create()
+    await fixture.load_elf_and_lookup_symbols(
+        r.Rlocation('coralnpu_hw/tests/cocotb/rvv/rvv_opt/gemv_exp.elf'),
+        []
+    )
+    cycle_count = await fixture.run_to_halt(timeout_cycles=10000)
+    print(cycle_count)
+

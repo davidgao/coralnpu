@@ -73,7 +73,7 @@ verilator_cocotb_model(
     name = "rvv_core_mini_axi_model",
     cflags = VERILATOR_BUILD_ARGS,
     hdl_toplevel = "RvvCoreMiniAxi",
-    trace = False,
+    trace = True,
     verilog_source = "//hdl/chisel/src/coralnpu:RvvCoreMiniAxi.sv",
     deps = [
         "//hdl/verilog:sram_backdoor",

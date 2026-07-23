@@ -36,6 +36,9 @@ template_rule(
             "srcs": ["memset_test.cc"],
             "hdrs": ["//sw/opt:rvv_opt.h"],
         },
+        "gemv_exp": {
+            "srcs": ["gemv_exp.cc"],
+        }
     },
 )
 
@@ -44,12 +47,14 @@ filegroup(
     srcs = [
         ":rvv_memcpy_test.elf",
         ":rvv_memset_test.elf",
+        ":gemv_exp.elf"
     ],
 )
 
 RUN_RVV_OPT_TESTS = [
     "rvv_memcpy_test",
     "rvv_memset_test",
+    "gemv_exp",
 ]
 
 cocotb_test_suite(
@@ -61,7 +66,7 @@ cocotb_test_suite(
     testcases = RUN_RVV_OPT_TESTS,
     testcases_vname = "RUN_RVV_OPT_TESTS",
     tests_kwargs = {
-        "waves": False,
+        "waves": True,
         "hdl_toplevel": "RvvCoreMiniAxi",
         "seed": "42",
         "test_module": ["cocotb_rvv_opt_test.py"],
@@ -73,6 +78,7 @@ cocotb_test_suite(
         "data": [
             ":rvv_memcpy_test",
             ":rvv_memset_test",
+            ":gemv_exp.elf",
         ],
         "size": "medium",
     },
